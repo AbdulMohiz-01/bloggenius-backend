@@ -14,26 +14,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js version
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20.x'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the project
-        run: npm run build --if-present
-
-      # Removing the test step to prevent failure
-      # - name: Run tests
-      #   run: npm run test --if-present
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -56,7 +51,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
+      
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -64,7 +59,4 @@ jobs:
           app-name: 'blog-geniusHub'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8C78E790C7CD49FFB8F3E8384BC673FB }}
-
-      - name: Log deployment URL
-        run: echo "Deployed to URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3A7AAB5631F1423F835184EEFEBE83A7 }}
